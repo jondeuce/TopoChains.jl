@@ -25,15 +25,18 @@ function(x)
 end
 ```
 """
-struct TopoChain{T<:Tuple, FS}
-    models::T
+struct TopoChain{FS, T<:Tuple}
     topo::FuncTopo{FS}
-    TopoChain(topo::FuncTopo{FS}, xs...) where FS = new{typeof(xs), FS}(xs, topo)
+    models::T
 end
 
-@generated function (s::TopoChain{TP, FS})(xs...) where {TP, FS}
+TopoChain(topo::FuncTopo{FS}, xs...) where FS = TopoChain{FS, typeof(xs)}(topo, xs)
+
+@functor TopoChain
+
+@generated function (s::TopoChain{FS, T})(xs...) where {FS, T}
     _code = functopo_impl(FS)
-    n = fieldcount(TP)
+    n = fieldcount(T)
     ms = [Symbol(:__model, i, :__) for i = 1:n]
     head = Expr(:(=), Expr(:tuple, ms...), :(s.models))
     pushfirst!(_code.args, head)

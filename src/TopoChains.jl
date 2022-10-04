@@ -9,6 +9,4 @@ include("code.jl")
 include("topology.jl")
 include("topochain.jl")
 
-Functors.functor(s::TopoChain) = s.models, m -> TopoChain(s.topo, m...)
-
 end
